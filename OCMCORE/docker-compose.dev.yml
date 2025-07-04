@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  memcached:
+    image: memcached:1.6-alpine
+    ports:
+      - "11211:11211"
+    restart: unless-stopped
+    command: memcached -m 128 -c 1024
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - env.dev
+    volumes:
+      - ./logs:/app/logs
+    depends_on:
+      - memcached
+volumes:
+  logs_volume: 

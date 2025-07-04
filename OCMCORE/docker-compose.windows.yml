@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.windows
+    env_file:
+      - env.windows
+    volumes:
+      - static_volume:/app/static
+      - ./logs:/app/logs
+    expose:
+      - "8000"
+    ports:
+      - "${DJANGO_RUNSERVER_PORT:-8000}:8000"
+    depends_on:
+      - memcached
+  memcached:
+    image: memcached:1.6-alpine
+    ports:
+      - "11211:11211"
+    restart: always
+  nginx:
+    image: nginx:1.25
+    ports:
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_PORT:-443}:443"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/conf.d/default.conf.template:ro
+      - ./nginx/start-nginx.sh:/docker-entrypoint.d/start-nginx.sh:ro
+      - static_volume:/static:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    environment:
+      - DJANGO_SERVER_NAME=${DJANGO_SERVER_NAME}
+    depends_on:
+      - web
+volumes:
+  static_volume:
+  logs_volume: 

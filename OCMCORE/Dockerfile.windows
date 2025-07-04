@@ -1,0 +1,14 @@
+# escape=`
+FROM mcr.microsoft.com/windows/servercore:ltsc2022
+SHELL ["cmd", "/S", "/C"]
+
+# Install Python
+RUN powershell -Command "Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe -OutFile python-installer.exe; Start-Process python-installer.exe -ArgumentList '/quiet InstallAllUsers=1 PrependPath=1' -Wait; Remove-Item python-installer.exe"
+
+WORKDIR /app
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+
+# Use Waitress for Windows
+CMD powershell -Command "$port = $env:DJANGO_RUNSERVER_PORT; if (-not $port) { $port = 8000 }; python -m waitress --port=$port core.wsgi:application" 

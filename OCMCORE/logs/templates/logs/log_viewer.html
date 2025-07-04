@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCMCORE Log Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .logs-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .log-entry:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .log-entry.ERROR {
+            border-left-color: #e74c3c;
+            background: #fdf2f2;
+        }
+
+        .log-entry.WARNING {
+            border-left-color: #f39c12;
+            background: #fef9e7;
+        }
+
+        .log-entry.INFO {
+            border-left-color: #3498db;
+            background: #f0f8ff;
+        }
+
+        .log-entry.DEBUG {
+            border-left-color: #95a5a6;
+            background: #f8f9fa;
+        }
+
+        .log-entry.CRITICAL {
+            border-left-color: #8e44ad;
+            background: #f4f1f8;
+        }
+
+        .log-timestamp {
+            color: #7f8c8d;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .log-level {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+
+        .log-level.ERROR {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .log-level.WARNING {
+            background: #f39c12;
+            color: white;
+        }
+
+        .log-level.INFO {
+            background: #3498db;
+            color: white;
+        }
+
+        .log-level.DEBUG {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .log-level.CRITICAL {
+            background: #8e44ad;
+            color: white;
+        }
+
+        .log-logger {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .log-message {
+            color: #34495e;
+            word-break: break-word;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        .error {
+            background: #fdf2f2;
+            border: 1px solid #e74c3c;
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            background: #f0f9ff;
+            border: 1px solid #3498db;
+            color: #3498db;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .control-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                width: 100%;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 OCMCORE Log Viewer</h1>
+            <p>Real-time log monitoring and analysis for your Django applications</p>
+        </div>
+
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="appSelect">Application</label>
+                    <select id="appSelect">
+                        <option value="">All Applications</option>
+                        {% for app in available_apps %}
+                        <option value="{{ app }}">{{ app|title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="levelSelect">Log Level</label>
+                    <select id="levelSelect">
+                        <option value="">All Levels</option>
+                        <option value="DEBUG">DEBUG</option>
+                        <option value="INFO">INFO</option>
+                        <option value="WARNING">WARNING</option>
+                        <option value="ERROR">ERROR</option>
+                        <option value="CRITICAL">CRITICAL</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="linesInput">Lines</label>
+                    <input type="number" id="linesInput" value="100" min="1" max="1000">
+                </div>
+
+                <div class="control-group">
+                    <label for="searchInput">Search</label>
+                    <input type="text" id="searchInput" placeholder="Search in messages...">
+                </div>
+
+                <div class="control-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+
+                <div class="control-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+
+            <div class="control-row">
+                <button class="btn btn-primary" onclick="loadLogs()">🔍 Load Logs</button>
+                <button class="btn btn-secondary" onclick="loadStats()">📊 Load Stats</button>
+                <button class="btn btn-danger" onclick="clearLogs()">🗑️ Clear Display</button>
+            </div>
+        </div>
+
+        <div class="stats" id="statsContainer" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-number" id="totalFiles">0</div>
+                <div class="stat-label">Log Files</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalEntries">0</div>
+                <div class="stat-label">Total Entries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="errorCount">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="warningCount">0</div>
+                <div class="stat-label">Warnings</div>
+            </div>
+        </div>
+
+        <div class="logs-container" id="logsContainer">
+            <div class="loading">
+                <h3>🚀 Ready to view logs!</h3>
+                <p>Select an application and click "Load Logs" to get started.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '{{ api_base_url }}';
+
+        function loadLogs() {
+            const appName = document.getElementById('appSelect').value;
+            const level = document.getElementById('levelSelect').value;
+            const lines = document.getElementById('linesInput').value;
+            const search = document.getElementById('searchInput').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const container = document.getElementById('logsContainer');
+            container.innerHTML = '<div class="loading">Loading logs...</div>';
+
+            let url;
+            if (appName) {
+                url = `${API_BASE}app/${appName}/?lines=${lines}&level=${level}`;
+            } else {
+                // Get all log files and show the most recent one
+                fetch(`${API_BASE}files/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.log_files && data.log_files.length > 0) {
+                            const latestFile = data.log_files[0];
+                            loadLogFile(latestFile.name, lines, level, search, startDate, endDate);
+                        } else {
+                            showError('No log files found');
+                        }
+                    })
+                    .catch(error => showError('Failed to load log files: ' + error.message));
+                return;
+            }
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayLogs(data);
+                    }
+                })
+                .catch(error => showError('Failed to load logs: ' + error.message));
+        }
+
+        function loadLogFile(filename, lines, level, search, startDate, endDate) {
+            let url = `${API_BASE}content/${filename}/?lines=${lines}&level=${level}`;
+            if (search) url += `&search=${encodeURIComponent(search)}`;
+            if (startDate) url += `&start_date=${startDate}`;
+            if (endDate) url += `&end_date=${endDate}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayLogs(data);
+                    }
+                })
+                .catch(error => showError('Failed to load log file: ' + error.message));
+        }
+
+        function displayLogs(data) {
+            const container = document.getElementById('logsContainer');
+            
+            if (!data.content || data.content.length === 0) {
+                container.innerHTML = '<div class="loading">No logs found matching your criteria.</div>';
+                return;
+            }
+
+            let html = `
+                <div class="success">
+                    <strong>📄 ${data.filename || data.app_name || 'Logs'}</strong><br>
+                    Showing ${data.filtered_lines} of ${data.total_lines} entries
+                </div>
+            `;
+
+            data.content.forEach(entry => {
+                const levelClass = entry.level || 'INFO';
+                html += `
+                    <div class="log-entry ${levelClass}">
+                        <span class="log-timestamp">${entry.timestamp}</span>
+                        <span class="log-level ${levelClass}">${levelClass}</span>
+                        <span class="log-logger">${entry.logger}</span>
+                        <span class="log-message">${entry.message}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function loadStats() {
+            const appName = document.getElementById('appSelect').value;
+            const container = document.getElementById('statsContainer');
+            
+            fetch(`${API_BASE}stats/?app_name=${appName}&days=7`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                    } else {
+                        displayStats(data);
+                        container.style.display = 'grid';
+                    }
+                })
+                .catch(error => showError('Failed to load stats: ' + error.message));
+        }
+
+        function displayStats(data) {
+            document.getElementById('totalFiles').textContent = data.total_log_files || 0;
+            document.getElementById('totalEntries').textContent = data.total_log_entries || 0;
+            document.getElementById('errorCount').textContent = 
+                (data.level_distribution?.ERROR || 0) + (data.level_distribution?.CRITICAL || 0);
+            document.getElementById('warningCount').textContent = data.level_distribution?.WARNING || 0;
+        }
+
+        function clearLogs() {
+            document.getElementById('logsContainer').innerHTML = `
+                <div class="loading">
+                    <h3>🚀 Ready to view logs!</h3>
+                    <p>Select an application and click "Load Logs" to get started.</p>
+                </div>
+            `;
+            document.getElementById('statsContainer').style.display = 'none';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('logsContainer');
+            container.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        // Auto-load logs when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default dates (last 7 days)
+            const today = new Date();
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('endDate').value = today.toISOString().split('T')[0];
+            document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html> 

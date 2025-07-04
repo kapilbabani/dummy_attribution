@@ -1,0 +1,49 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+ENV/
+env/
+
+# Django
+*.log
+staticfiles/
+media/
+
+# Environment files
+.env
+.env.*
+credentials.env
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# GitHub Actions runner
+/actions-runner/
+C:/actions-runner/
+
+# Others
+*.sqlite3 
