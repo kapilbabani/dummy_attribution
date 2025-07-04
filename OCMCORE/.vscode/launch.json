@@ -1,0 +1,104 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Django Debug",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "env": {
+                "DJANGO_DEBUG": "true",
+                "DJANGO_ENV": "development",
+                "DJANGO_RUNSERVER_PORT": "8000"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Django Debug (No Cache)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "env": {
+                "DJANGO_DEBUG": "true",
+                "DJANGO_ENV": "development",
+                "DJANGO_RUNSERVER_PORT": "8000",
+                "MEMCACHED_HOST": "",
+                "MEMCACHED_PORT": ""
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Django Debug (Verbose)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000",
+                "--verbosity=2"
+            ],
+            "django": true,
+            "env": {
+                "DJANGO_DEBUG": "true",
+                "DJANGO_ENV": "development",
+                "DJANGO_RUNSERVER_PORT": "8000"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "justMyCode": false,
+            "stopOnEntry": false
+        },
+        {
+            "name": "Test Memcached",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/env_testing/test_memcached.py",
+            "env": {
+                "DJANGO_DEBUG": "true",
+                "DJANGO_ENV": "development"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "justMyCode": false
+        },
+        {
+            "name": "Test Pattern Cache",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/env_testing/test_pattern_cache.py",
+            "env": {
+                "DJANGO_DEBUG": "true",
+                "DJANGO_ENV": "development"
+            },
+            "envFile": "${workspaceFolder}/.env",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/venv/Scripts/python.exe",
+            "justMyCode": false
+        }
+    ]
+} 

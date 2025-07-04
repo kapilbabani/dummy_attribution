@@ -26,7 +26,7 @@ credentials.env
 docker-compose.override.yml
 
 # VSCode
-.vscode/
+
 
 # macOS
 .DS_Store
